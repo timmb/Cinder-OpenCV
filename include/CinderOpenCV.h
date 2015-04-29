@@ -47,7 +47,7 @@ class ImageSourceCvMat : public ImageSource {
 				throw ImageIoExceptionIllegalDataType();
 		}
 
-		mRowBytes = mat.step;
+		mRowBytes = (int32_t)mat.step;
 		mData = reinterpret_cast<const uint8_t*>( mat.data );
 	}
 
@@ -116,24 +116,29 @@ inline cv::Mat toOcv( ci::ImageSourceRef sourceRef, int type = -1 )
 	return result;
 }
 
-inline cv::Mat toOcvRef( Channel8u &channel )
+inline cv::Mat toOcvRef( const ci::Channel8uRef &channel )
 {
-	return cv::Mat( channel.getHeight(), channel.getWidth(), CV_MAKETYPE( CV_8U, 1 ), channel.getData(), channel.getRowBytes() );
+	return cv::Mat( channel->getHeight(), channel->getWidth(), CV_MAKETYPE( CV_8U, 1 ), channel->getData(), channel->getRowBytes() );
 }
 
-inline cv::Mat toOcvRef( Channel32f &channel )
+inline cv::Mat toOcvRef( const ci::Channel16uRef &channel )
 {
-	return cv::Mat( channel.getHeight(), channel.getWidth(), CV_MAKETYPE( CV_32F, 1 ), channel.getData(), channel.getRowBytes() );
+    return cv::Mat( channel->getHeight(), channel->getWidth(), CV_MAKETYPE( CV_16U, 1 ), channel->getData(), channel->getRowBytes() );
 }
 
-inline cv::Mat toOcvRef( Surface8u &surface )
+inline cv::Mat toOcvRef( const Channel32fRef &channel )
 {
-	return cv::Mat( surface.getHeight(), surface.getWidth(), CV_MAKETYPE( CV_8U, surface.hasAlpha()?4:3), surface.getData(), surface.getRowBytes() );
+    return cv::Mat( channel->getHeight(), channel->getWidth(), CV_MAKETYPE( CV_32F, 1 ), channel->getData(), channel->getRowBytes() );
 }
 
-inline cv::Mat toOcvRef( Surface32f &surface )
+inline cv::Mat toOcvRef( const Surface8uRef &surface )
 {
-	return cv::Mat( surface.getHeight(), surface.getWidth(), CV_MAKETYPE( CV_32F, surface.hasAlpha()?4:3), surface.getData(), surface.getRowBytes() );
+    return cv::Mat( surface->getHeight(), surface->getWidth(), CV_MAKETYPE( CV_8U, surface->hasAlpha() ? 4 : 3 ), surface->getData(), surface->getRowBytes() );
+}
+
+inline cv::Mat toOcvRef( const Surface32fRef &surface )
+{
+    return cv::Mat( surface->getHeight(), surface->getWidth(), CV_MAKETYPE( CV_32F, surface->hasAlpha() ? 4 : 3 ), surface->getData(), surface->getRowBytes() );
 }
 
 inline ImageSourceRef fromOcv( cv::Mat &mat )
@@ -146,22 +151,22 @@ inline cv::Scalar toOcv( const Color &color )
 	return CV_RGB( color.r * 255, color.g * 255, color.b * 255 );
 }
 
-inline Vec2f fromOcv( const cv::Point2f &point )
+inline ci::vec2 fromOcv( const cv::Point2f &point )
 {
-	return Vec2f( point.x, point.y );
+	return ci::vec2( point.x, point.y );
 }
 
-inline cv::Point2f toOcv( const Vec2f &point )
+inline cv::Point2f toOcv( const ci::vec2 &point )
 {
 	return cv::Point2f( point.x, point.y );
 }
 
-inline Vec2i fromOcv( const cv::Point &point )
+inline ci::ivec2 fromOcv( const cv::Point &point )
 {
-	return Vec2i( point.x, point.y );
+	return ci::ivec2( point.x, point.y );
 }
 
-inline cv::Point toOcv( const Vec2i &point )
+inline cv::Point toOcv( const ci::ivec2 &point )
 {
 	return cv::Point( point.x, point.y );
 }
